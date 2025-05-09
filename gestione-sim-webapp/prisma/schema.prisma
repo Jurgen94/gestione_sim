@@ -1,0 +1,30 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Societa {
+  id        Int     @id @default(autoincrement())
+  piva      String  @unique
+  ragione_sociale String
+  referente String?
+  iban      String
+  sim       Sim[]
+}
+
+model Sim {
+  id               Int     @id @default(autoincrement())
+  iccid            String  @unique
+  operatore        String
+  stato            String
+  data_fatturazione DateTime?
+  costo_mensile    Float
+  minuti_lavorati  Int?
+  societaId        Int
+  societa          Societa @relation(fields: [societaId], references: [id])
+}
