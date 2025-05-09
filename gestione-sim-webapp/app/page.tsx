@@ -6,6 +6,7 @@ import SIMTable from '@/components/SIMTable';
 import AddSimModal from '@/components/AddSimModal';
 import AddSocietaModal from '@/components/AddSocietaModal';
 import ImportSimModal from '@/components/ImportSimModal';
+import BulkActionsBar from '@/components/BulkActionsBar'
 
 export default function HomePage() {
   const [selectedSocieta, setSelectedSocieta] = useState('');
@@ -81,7 +82,7 @@ export default function HomePage() {
         onImportaSim={() => setShowImportModal(true)}
         onEsporta={() => alert('Esportazione PDF da implementare')}
       />
-
+      <BulkActionsBar selected={selectedSims} onRefresh={fetchSIMs} />
       <SIMTable sims={sims} selected={selectedSims} setSelected={setSelectedSims} />
 
       {showSimModal && (
