@@ -10,7 +10,9 @@ type SIM = {
   data_fatturazione: string | null
   minuti_lavorati: number | null
   costo_mensile: number
-  societa_piva: string
+  societa: {
+    ragione_sociale: string
+  } | null
 }
 
 type SIMTableProps = {
@@ -75,7 +77,7 @@ export default function SIMTable({ sims, selected, setSelected }: SIMTableProps)
             <TableCell>{sim.data_fatturazione || "-"}</TableCell>
             <TableCell>{sim.minuti_lavorati ?? "-"}</TableCell>
             <TableCell>{sim.costo_mensile} €</TableCell>
-            <TableCell>{sim.societa_piva}</TableCell>
+            <TableCell>{sim.societa?.ragione_sociale || "-"}</TableCell>
           </TableRow>
         ))}
       </TableBody>

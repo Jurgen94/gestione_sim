@@ -12,14 +12,14 @@ export default function ImportSimModal({ onClose, onSave }: ImportSimModalProps)
   const [stato, setStato] = useState('Attiva')
   const [societa_piva, setSocietaPiva] = useState('')
   const [costoMensile, setCostoMensile] = useState('')
-  const [societaList, setSocietaList] = useState<string[]>([])
+  const [societaList, setSocietaList] = useState<{ piva: string; ragione_sociale: string }[]>([])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     fetch('/api/societa')
       .then(res => res.json())
-      .then(data => setSocietaList(data.map((s: any) => s.piva)))
+      .then(data => setSocietaList(data))
   }, [])
 
   const handleSubmit = async () => {
@@ -31,7 +31,8 @@ export default function ImportSimModal({ onClose, onSave }: ImportSimModalProps)
       return
     }
 
-    if (!societaList.includes(piva)) {
+    const pivaEsiste = societaList.some(s => s.piva === piva)
+    if (!pivaEsiste) {
       setError('P.IVA non trovata. Aggiungi prima la società.')
       return
     }
@@ -112,14 +113,14 @@ export default function ImportSimModal({ onClose, onSave }: ImportSimModalProps)
         <input
           type="text"
           list="piva-options"
-          placeholder="P.IVA Società *"
+          placeholder="Seleziona società *"
           value={societa_piva}
           onChange={(e) => setSocietaPiva(e.target.value)}
           className="w-full bg-gray-700 text-white p-2 rounded"
         />
         <datalist id="piva-options">
-          {societaList.map((piva) => (
-            <option key={piva} value={piva} />
+          {societaList.map(({ piva, ragione_sociale }) => (
+            <option key={piva} value={piva} label={ragione_sociale} />
           ))}
         </datalist>
 

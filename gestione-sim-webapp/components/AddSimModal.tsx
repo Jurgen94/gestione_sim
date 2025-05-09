@@ -17,7 +17,7 @@ export default function AddSimModal({ onClose, onSave }: AddSimModalProps) {
     societa_piva: '',
   })
 
-  const [societaList, setSocietaList] = useState<string[]>([])
+  const [societaList, setSocietaList] = useState<{ piva: string; ragione_sociale: string }[]>([])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -25,7 +25,7 @@ export default function AddSimModal({ onClose, onSave }: AddSimModalProps) {
     fetch('/api/societa')
       .then(res => res.json())
       .then(data => {
-        setSocietaList(data.map((s: any) => s.piva.trim()))
+        setSocietaList(data)
       })
   }, [])
 
@@ -35,14 +35,15 @@ export default function AddSimModal({ onClose, onSave }: AddSimModalProps) {
 
   const handleSubmit = async () => {
     setError('')
+    const cleanedPiva = form.societa_piva.trim()
 
-    if (!form.iccid || !form.operatore || !form.stato || !form.costo_mensile || !form.societa_piva) {
+    if (!form.iccid || !form.operatore || !form.stato || !form.costo_mensile || !cleanedPiva) {
       setError('Compila tutti i campi obbligatori')
       return
     }
 
-    const cleanedPiva = form.societa_piva.trim()
-    if (!societaList.includes(cleanedPiva)) {
+    const pivaEsiste = societaList.some(s => s.piva === cleanedPiva)
+    if (!pivaEsiste) {
       setError("P.IVA non trovata. Aggiungi prima la società.")
       return
     }
@@ -89,14 +90,14 @@ export default function AddSimModal({ onClose, onSave }: AddSimModalProps) {
 
           <input
             name="societa_piva"
-            placeholder="P.IVA Società *"
+            placeholder="Seleziona società *"
             list="piva-options"
             onChange={handleChange}
             className="bg-gray-700 p-2 rounded text-white col-span-2"
           />
           <datalist id="piva-options">
-            {societaList.map((piva) => (
-              <option key={piva} value={piva} />
+            {societaList.map(({ piva, ragione_sociale }) => (
+              <option key={piva} value={piva} label={ragione_sociale} />
             ))}
           </datalist>
         </div>
