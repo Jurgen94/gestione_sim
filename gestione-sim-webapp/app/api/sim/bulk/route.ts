@@ -1,41 +1,34 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from "@prisma/client"
+import { NextRequest, NextResponse } from "next/server"
 
 const prisma = new PrismaClient()
 
 export async function POST(req: NextRequest) {
   try {
-    const { iccids, operatore, stato, societa_piva } = await req.json()
+    const sims = await req.json()
 
-    if (!Array.isArray(iccids) || iccids.length === 0 || !operatore || !societa_piva || !stato) {
-      return NextResponse.json({ error: 'Dati mancanti o errati' }, { status: 400 })
+    if (!Array.isArray(sims) || sims.length === 0) {
+      return NextResponse.json({ error: "Nessun dato ricevuto" }, { status: 400 })
     }
 
-    const societa = await prisma.societa.findUnique({
-      where: { piva: societa_piva },
+    const cleaned = sims.map(sim => ({
+      iccid: sim.iccid,
+      operatore: sim.operatore,
+      stato: sim.stato || "Attiva",
+      costo_mensile: sim.costo_mensile || 0,
+      data_fatturazione: sim.data_fatturazione || null,
+      minuti_lavorati: sim.minuti_lavorati || 0,
+      societa_piva: sim.societa_piva,
+    }))
+
+    await prisma.sim.createMany({
+      data: cleaned,
+      skipDuplicates: true,
     })
 
-    if (!societa) {
-      return NextResponse.json({ error: 'Società non trovata' }, { status: 404 })
-    }
-
-    const nuoveSim = await Promise.all(
-      iccids.map(iccid =>
-        prisma.sim.create({
-          data: {
-            iccid,
-            operatore,
-            stato,
-            costo_mensile: 0,
-            societaId: societa.id,
-          },
-        })
-      )
-    )
-
-    return NextResponse.json({ count: nuoveSim.length })
-  } catch (error) {
-    console.error('Errore bulk insert:', error)
-    return NextResponse.json({ error: 'Errore server' }, { status: 500 })
+    return NextResponse.json({ success: true })
+  } catch (err) {
+    console.error("Errore bulk SIM:", err)
+    return NextResponse.json({ error: "Errore server" }, { status: 500 })
   }
 }

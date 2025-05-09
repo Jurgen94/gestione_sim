@@ -6,11 +6,13 @@ import SIMTable from '@/components/SIMTable'
 import AddSimModal from '@/components/AddSimModal'
 import AddSocietaModal from '@/components/AddSocietaModal'
 import ImportSimModal from '@/components/ImportSimModal'
+import BulkActionsBar from '@/components/BulkActionsBar'
 
 export default function HomePage() {
   const [selectedSocieta, setSelectedSocieta] = useState('')
   const [operatore, setOperatore] = useState('')
   const [sims, setSims] = useState([])
+  const [selectedSims, setSelectedSims] = useState<string[]>([])
   const [societaOptions, setSocietaOptions] = useState<{ id: number; piva: string; ragione_sociale: string }[]>([])
   const [showSimModal, setShowSimModal] = useState(false)
   const [showSocietaModal, setShowSocietaModal] = useState(false)
@@ -40,6 +42,7 @@ export default function HomePage() {
         )
       })
       setSims(filtrate)
+      setSelectedSims([])
     }
   }
 
@@ -79,7 +82,12 @@ export default function HomePage() {
         onEsporta={() => alert('Esportazione PDF da implementare')}
       />
 
-      <SIMTable sims={sims} />
+      <BulkActionsBar
+        selected={selectedSims}
+        onRefresh={fetchSIMs}
+      />
+
+      <SIMTable sims={sims} selected={selectedSims} setSelected={setSelectedSims} />
 
       {showSimModal && (
         <AddSimModal
