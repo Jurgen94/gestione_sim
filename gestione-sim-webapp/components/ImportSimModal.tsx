@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 type ImportSimModalProps = {
   onClose: () => void
@@ -11,22 +11,47 @@ export default function ImportSimModal({ onClose, onSave }: ImportSimModalProps)
   const [operatore, setOperatore] = useState('')
   const [stato, setStato] = useState('Attiva')
   const [societa_piva, setSocietaPiva] = useState('')
+  const [costoMensile, setCostoMensile] = useState('')
+  const [societaList, setSocietaList] = useState<string[]>([])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
+  useEffect(() => {
+    fetch('/api/societa')
+      .then(res => res.json())
+      .then(data => setSocietaList(data.map((s: any) => s.piva)))
+  }, [])
+
   const handleSubmit = async () => {
     const righe = iccidList.trim().split('\n').map(r => r.trim()).filter(Boolean)
-    if (righe.length === 0 || !operatore || !societa_piva) {
+    const piva = societa_piva.trim()
+
+    if (righe.length === 0 || !operatore || !piva || !costoMensile) {
       setError('Tutti i campi sono obbligatori')
+      return
+    }
+
+    if (!societaList.includes(piva)) {
+      setError('P.IVA non trovata. Aggiungi prima la società.')
       return
     }
 
     setLoading(true)
     try {
+      const sims = righe.map((iccid) => ({
+        iccid,
+        operatore,
+        stato,
+        societa_piva: piva,
+        costo_mensile: parseFloat(costoMensile),
+        data_fatturazione: null,
+        minuti_lavorati: 0
+      }))
+
       const res = await fetch('/api/sim/bulk', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ iccids: righe, operatore, stato, societa_piva }),
+        body: JSON.stringify(sims),
       })
 
       if (!res.ok) {
@@ -76,12 +101,27 @@ export default function ImportSimModal({ onClose, onSave }: ImportSimModalProps)
         </select>
 
         <input
+          type="number"
+          step="0.01"
+          placeholder="Costo mensile *"
+          value={costoMensile}
+          onChange={(e) => setCostoMensile(e.target.value)}
+          className="w-full bg-gray-700 text-white p-2 rounded"
+        />
+
+        <input
           type="text"
+          list="piva-options"
           placeholder="P.IVA Società *"
           value={societa_piva}
           onChange={(e) => setSocietaPiva(e.target.value)}
           className="w-full bg-gray-700 text-white p-2 rounded"
         />
+        <datalist id="piva-options">
+          {societaList.map((piva) => (
+            <option key={piva} value={piva} />
+          ))}
+        </datalist>
 
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 

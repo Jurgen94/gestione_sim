@@ -1,62 +1,62 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import FilterBar from '@/components/FilterBar'
-import SIMTable from '@/components/SIMTable'
-import AddSimModal from '@/components/AddSimModal'
-import AddSocietaModal from '@/components/AddSocietaModal'
-import ImportSimModal from '@/components/ImportSimModal'
-import BulkActionsBar from '@/components/BulkActionsBar'
+import { useEffect, useState } from 'react';
+import FilterBar from '@/components/FilterBar';
+import SIMTable from '@/components/SIMTable';
+import AddSimModal from '@/components/AddSimModal';
+import AddSocietaModal from '@/components/AddSocietaModal';
+import ImportSimModal from '@/components/ImportSimModal';
 
 export default function HomePage() {
-  const [selectedSocieta, setSelectedSocieta] = useState('')
-  const [operatore, setOperatore] = useState('')
-  const [sims, setSims] = useState([])
-  const [selectedSims, setSelectedSims] = useState<string[]>([])
-  const [societaOptions, setSocietaOptions] = useState<{ id: number; piva: string; ragione_sociale: string }[]>([])
-  const [showSimModal, setShowSimModal] = useState(false)
-  const [showSocietaModal, setShowSocietaModal] = useState(false)
-  const [showImportModal, setShowImportModal] = useState(false)
+  const [selectedSocieta, setSelectedSocieta] = useState('');
+  const [operatore, setOperatore] = useState('');
+  const [sims, setSims] = useState([]);
+  const [selectedSims, setSelectedSims] = useState<string[]>([]);
+  const [societaOptions, setSocietaOptions] = useState<
+    { id: number; piva: string; ragione_sociale: string }[]
+  >([]);
+  const [showSimModal, setShowSimModal] = useState(false);
+  const [showSocietaModal, setShowSocietaModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   const handleLogout = async () => {
-    await fetch('/api/logout', { method: 'POST' })
-    window.location.href = '/login'
-  }
+    await fetch('/api/logout', { method: 'POST' });
+    window.location.href = '/login';
+  };
 
   const fetchSocieta = async () => {
-    const res = await fetch('/api/societa')
+    const res = await fetch('/api/societa');
     if (res.ok) {
-      const data = await res.json()
-      setSocietaOptions(data)
+      const data = await res.json();
+      setSocietaOptions(data);
     }
-  }
+  };
 
   const fetchSIMs = async () => {
-    const res = await fetch('/api/sim')
+    const res = await fetch('/api/sim');
     if (res.ok) {
-      const data = await res.json()
+      const data = await res.json();
       const filtrate = data.filter((sim: any) => {
         return (
           (!selectedSocieta || sim.societa?.piva === selectedSocieta) &&
           (!operatore || sim.operatore.toLowerCase().includes(operatore.toLowerCase()))
-        )
-      })
-      setSims(filtrate)
-      setSelectedSims([])
+        );
+      });
+      setSims(filtrate);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchSocieta()
-  }, [])
+    fetchSocieta();
+  }, []);
 
   useEffect(() => {
-    fetchSIMs()
-  }, [selectedSocieta, operatore])
+    fetchSIMs();
+  }, [selectedSocieta, operatore]);
 
-  const handleAddSim = () => fetchSIMs()
-  const handleAddSocieta = () => fetchSocieta()
-  const handleImportSim = () => fetchSIMs()
+  const handleAddSim = () => fetchSIMs();
+  const handleAddSocieta = () => fetchSocieta();
+  const handleImportSim = () => fetchSIMs();
 
   return (
     <main className="min-h-screen bg-gray-900 text-white p-6">
@@ -82,11 +82,6 @@ export default function HomePage() {
         onEsporta={() => alert('Esportazione PDF da implementare')}
       />
 
-      <BulkActionsBar
-        selected={selectedSims}
-        onRefresh={fetchSIMs}
-      />
-
       <SIMTable sims={sims} selected={selectedSims} setSelected={setSelectedSims} />
 
       {showSimModal && (
@@ -110,5 +105,5 @@ export default function HomePage() {
         />
       )}
     </main>
-  )
+  );
 }

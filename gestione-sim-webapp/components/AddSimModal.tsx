@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 type AddSimModalProps = {
   onClose: () => void
@@ -17,8 +17,17 @@ export default function AddSimModal({ onClose, onSave }: AddSimModalProps) {
     societa_piva: '',
   })
 
+  const [societaList, setSocietaList] = useState<string[]>([])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/societa')
+      .then(res => res.json())
+      .then(data => {
+        setSocietaList(data.map((s: any) => s.piva.trim()))
+      })
+  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -26,8 +35,15 @@ export default function AddSimModal({ onClose, onSave }: AddSimModalProps) {
 
   const handleSubmit = async () => {
     setError('')
+
     if (!form.iccid || !form.operatore || !form.stato || !form.costo_mensile || !form.societa_piva) {
       setError('Compila tutti i campi obbligatori')
+      return
+    }
+
+    const cleanedPiva = form.societa_piva.trim()
+    if (!societaList.includes(cleanedPiva)) {
+      setError("P.IVA non trovata. Aggiungi prima la società.")
       return
     }
 
@@ -36,7 +52,7 @@ export default function AddSimModal({ onClose, onSave }: AddSimModalProps) {
       const res = await fetch('/api/sim', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, societa_piva: cleanedPiva }),
       })
 
       if (!res.ok) {
@@ -68,9 +84,21 @@ export default function AddSimModal({ onClose, onSave }: AddSimModalProps) {
             <option value="In consegna">In consegna</option>
           </select>
           <input type="date" name="data_fatturazione" onChange={handleChange} className="bg-gray-700 p-2 rounded text-white" />
-          <input name="costo_mensile" placeholder="Costo mensile *" onChange={handleChange} className="bg-gray-700 p-2 rounded text-white" />
-          <input name="minuti_lavorati" placeholder="Minuti lavorati" onChange={handleChange} className="bg-gray-700 p-2 rounded text-white" />
-          <input name="societa_piva" placeholder="P.IVA Società *" onChange={handleChange} className="bg-gray-700 p-2 rounded text-white col-span-2" />
+          <input name="costo_mensile" type="number" step="0.01" placeholder="Costo mensile *" onChange={handleChange} className="bg-gray-700 p-2 rounded text-white" />
+          <input name="minuti_lavorati" type="number" placeholder="Minuti lavorati" onChange={handleChange} className="bg-gray-700 p-2 rounded text-white" />
+
+          <input
+            name="societa_piva"
+            placeholder="P.IVA Società *"
+            list="piva-options"
+            onChange={handleChange}
+            className="bg-gray-700 p-2 rounded text-white col-span-2"
+          />
+          <datalist id="piva-options">
+            {societaList.map((piva) => (
+              <option key={piva} value={piva} />
+            ))}
+          </datalist>
         </div>
 
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}

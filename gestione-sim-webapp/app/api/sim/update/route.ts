@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
     if (data.stato) fieldsToUpdate.stato = data.stato
     if (data.data_fatturazione) fieldsToUpdate.data_fatturazione = data.data_fatturazione
     if (typeof data.minuti_lavorati === "number") fieldsToUpdate.minuti_lavorati = data.minuti_lavorati
+    if (typeof data.costo_mensile === "number") fieldsToUpdate.costo_mensile = data.costo_mensile
 
     await prisma.sim.updateMany({
       where: { id: { in: ids } },

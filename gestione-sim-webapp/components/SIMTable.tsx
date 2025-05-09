@@ -28,11 +28,28 @@ export default function SIMTable({ sims, selected, setSelected }: SIMTableProps)
     }
   }
 
+  const allSelected = sims.length > 0 && selected.length === sims.length
+
+  const toggleSelectAll = () => {
+    if (allSelected) {
+      setSelected([])
+    } else {
+      setSelected(sims.map(sim => sim.id))
+    }
+  }
+
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead></TableHead>
+          <TableHead>
+            <input
+              type="checkbox"
+              checked={allSelected}
+              onChange={toggleSelectAll}
+              title="Seleziona tutte"
+            />
+          </TableHead>
           <TableHead>ICCID</TableHead>
           <TableHead>Operatore</TableHead>
           <TableHead>Stato</TableHead>

@@ -14,6 +14,7 @@ export default function BulkActionsBar({
   const [stato, setStato] = useState("")
   const [fatturazione, setFatturazione] = useState("")
   const [minuti, setMinuti] = useState("")
+  const [costo, setCosto] = useState("")
 
   const handleUpdate = async () => {
     if (selected.length === 0) return
@@ -27,6 +28,7 @@ export default function BulkActionsBar({
           stato: stato || undefined,
           data_fatturazione: fatturazione || undefined,
           minuti_lavorati: minuti ? parseInt(minuti) : undefined,
+          costo_mensile: costo ? parseFloat(costo) : undefined,
         },
       }),
     })
@@ -35,6 +37,7 @@ export default function BulkActionsBar({
     setStato("")
     setFatturazione("")
     setMinuti("")
+    setCosto("")
   }
 
   const handleDelete = async () => {
@@ -68,17 +71,28 @@ export default function BulkActionsBar({
           <option value="In consegna">In consegna</option>
         </select>
         <Input
-          placeholder="Data fatturazione (YYYY-MM-DD)"
+          type="date"
+          placeholder="Data fatturazione"
           value={fatturazione}
           onChange={(e) => setFatturazione(e.target.value)}
         />
         <Input
+          type="number"
           placeholder="Minuti lavorati"
           value={minuti}
           onChange={(e) => setMinuti(e.target.value)}
         />
-        <Button onClick={handleUpdate}>Applica modifiche</Button>
-        <Button variant="destructive" onClick={handleDelete}>Elimina</Button>
+        <Input
+          type="number"
+          step="0.01"
+          placeholder="Costo mensile"
+          value={costo}
+          onChange={(e) => setCosto(e.target.value)}
+        />
+        <div className="flex gap-2">
+          <Button onClick={handleUpdate}>Applica</Button>
+          <Button variant="destructive" onClick={handleDelete}>Elimina</Button>
+        </div>
       </div>
     </div>
   )
