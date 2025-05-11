@@ -62,3 +62,31 @@ export async function GET(
     return NextResponse.json({ error: 'Errore server' }, { status: 500 })
   }
 }
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { piva: string } }
+) {
+  try {
+    const body = await req.json()
+
+    const updated = await prisma.societa.update({
+      where: { piva: params.piva },
+      data: {
+        ragione_sociale: body.ragione_sociale,
+        sede_legale: body.sede_legale,
+        n_dipendenti: body.n_dipendenti,
+        telefono: body.telefono,
+        nome_amm: body.nome_amm,
+        cognome_amm: body.cognome_amm,
+        cf_amm: body.cf_amm,
+        data_nascita_amm: body.data_nascita_amm ? new Date(body.data_nascita_amm) : undefined,
+        luogo_nascita_amm: body.luogo_nascita_amm,
+      },
+    })
+
+    return NextResponse.json(updated)
+  } catch (error) {
+    console.error('Errore aggiornamento società:', error)
+    return NextResponse.json({ error: 'Errore server' }, { status: 500 })
+  }
+}
