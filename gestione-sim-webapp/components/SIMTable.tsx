@@ -1,5 +1,6 @@
 'use client'
 
+import Link from "next/link"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 type SIM = {
@@ -11,6 +12,7 @@ type SIM = {
   minuti_lavorati: number | null
   costo_mensile: number
   societa: {
+    piva: string
     ragione_sociale: string
   } | null
 }
@@ -77,7 +79,18 @@ export default function SIMTable({ sims, selected, setSelected }: SIMTableProps)
             <TableCell>{sim.data_fatturazione || "-"}</TableCell>
             <TableCell>{sim.minuti_lavorati ?? "-"}</TableCell>
             <TableCell>{sim.costo_mensile} €</TableCell>
-            <TableCell>{sim.societa?.ragione_sociale || "-"}</TableCell>
+            <TableCell>
+              {sim.societa ? (
+                <Link
+                  href={`/societa/${sim.societa.piva}`}
+                  className="text-blue-400 hover:underline"
+                >
+                  {sim.societa.ragione_sociale}
+                </Link>
+              ) : (
+                "-"
+              )}
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>

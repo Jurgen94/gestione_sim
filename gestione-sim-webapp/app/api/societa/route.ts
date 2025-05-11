@@ -1,3 +1,4 @@
+// app/api/societa/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 
@@ -18,10 +19,23 @@ export async function GET() {
 // ✅ Inserisce una nuova società
 export async function POST(req: NextRequest) {
   try {
-    const { piva, ragione_sociale, referente, iban } = await req.json()
+    const {
+      piva,
+      ragione_sociale,
+      referente,
+      iban,
+      sede_legale,
+      n_dipendenti,
+      telefono,
+      nome_amm,
+      cognome_amm,
+      cf_amm,
+      data_nascita_amm,
+      luogo_nascita_amm,
+    } = await req.json()
 
-    if (!piva || !iban) {
-      return NextResponse.json({ error: 'P.IVA e IBAN sono obbligatori' }, { status: 400 })
+    if (!piva || !ragione_sociale || !iban) {
+      return NextResponse.json({ error: 'P.IVA, Ragione Sociale e IBAN sono obbligatori' }, { status: 400 })
     }
 
     const nuovaSocieta = await prisma.societa.create({
@@ -30,6 +44,14 @@ export async function POST(req: NextRequest) {
         ragione_sociale,
         referente,
         iban,
+        sede_legale,
+        n_dipendenti,
+        telefono,
+        nome_amm,
+        cognome_amm,
+        cf_amm,
+        data_nascita_amm: data_nascita_amm ? new Date(data_nascita_amm) : undefined,
+        luogo_nascita_amm,
       },
     })
 
