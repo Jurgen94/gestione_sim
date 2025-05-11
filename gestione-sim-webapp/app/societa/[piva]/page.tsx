@@ -77,6 +77,9 @@ export default function SocietaPage() {
         <div className="bg-gray-800 p-4 rounded">
           <h2 className="text-xl font-semibold mb-2">🏢 Info Società</h2>
           <p><strong>P.IVA:</strong> {data.societa.piva}</p>
+          <p><strong>Ragione Sociale:</strong> {data.societa.ragione_sociale || '-'}</p>
+          <p><strong>Referente:</strong> {data.societa.referente || '-'}</p>
+          <p><strong>IBAN:</strong> {data.societa.iban || '-'}</p>
           <p><strong>Sede legale:</strong> {data.societa.sede_legale || '-'}</p>
           <p><strong>Dipendenti:</strong> {data.societa.n_dipendenti ?? '-'}</p>
           <p><strong>Telefono:</strong> {data.societa.telefono || '-'}</p>
