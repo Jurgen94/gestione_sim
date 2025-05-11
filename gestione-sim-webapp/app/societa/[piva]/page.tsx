@@ -1,4 +1,3 @@
-// app/societa/[piva]/page.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -26,8 +25,10 @@ export default function SocietaPage() {
   if (error) return <div className="text-red-500 p-4">{error}</div>
   if (!data) return <div className="text-white p-4">Caricamento...</div>
 
-  const simAttive = data.sim.filter((s: any) => s.stato === 'Attiva')
-  const simInConsegna = data.sim.filter((s: any) => s.stato === 'In consegna')
+  const simList = Array.isArray(data.sim) ? data.sim : []
+
+  const simAttive = simList.filter((s: any) => s.stato === 'Attiva')
+  const simInConsegna = simList.filter((s: any) => s.stato === 'In consegna')
 
   const raggruppaPerOperatore = (sims: any[]) => {
     const mappa: Record<string, number> = {}
@@ -47,7 +48,7 @@ export default function SocietaPage() {
       <div className="grid grid-cols-2 gap-4 mb-6">
         <div className="bg-gray-800 p-4 rounded">
           <h2 className="text-xl font-semibold mb-2">📊 Statistiche SIM</h2>
-          <p><strong>Totale SIM:</strong> {data.sim.length}</p>
+          <p><strong>Totale SIM:</strong> {simList.length}</p>
           <p><strong>SIM attive:</strong> {simAttive.length}</p>
           <p><strong>SIM in consegna:</strong> {simInConsegna.length}</p>
           <p className="mt-2"><strong>Attive per operatore:</strong></p>
@@ -74,7 +75,7 @@ export default function SocietaPage() {
           <p><strong>Amministratore:</strong></p>
           <p>{data.nome_amm} {data.cognome_amm}</p>
           <p><strong>Codice fiscale:</strong> {data.cf_amm || '-'}</p>
-          <p><strong>Nascita:</strong> {data.data_nascita_amm?.split('T')[0]} a {data.luogo_nascita_amm || '-'}</p>
+          <p><strong>Nascita:</strong> {data.data_nascita_amm?.split('T')[0] || '-'} a {data.luogo_nascita_amm || '-'}</p>
         </div>
       </div>
 
