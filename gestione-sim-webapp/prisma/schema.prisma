@@ -9,25 +9,46 @@ datasource db {
 }
 
 model Societa {
-  id        Int     @id @default(autoincrement())
-  piva      String  @unique
-  ragione_sociale String
-  referente String?
-  iban      String
-  sim       Sim[]
+  id                Int         @id @default(autoincrement())
+  piva              String      @unique
+  ragione_sociale   String
+  sede_legale       String?
+  n_dipendenti      Int?
+  telefono          String?
+
+  // Amministratore
+  nome_amm          String?
+  cognome_amm       String?
+  cf_amm            String?
+  data_nascita_amm  DateTime?
+  luogo_nascita_amm String?
+
+  // Relazioni
+  sim               Sim[]
+  documenti         Documento[]
+}
+
+model Documento {
+  id         Int      @id @default(autoincrement())
+  filename   String
+  url        String
+  societaId  Int
+  societa    Societa  @relation(fields: [societaId], references: [id])
+  uploadedAt DateTime @default(now())
 }
 
 model Sim {
-  id               Int     @id @default(autoincrement())
-  iccid            String  @unique
+  id               String   @id @default(uuid())
+  iccid            String   @unique
   operatore        String
   stato            String
   data_fatturazione DateTime?
-  costo_mensile    Float
   minuti_lavorati  Int?
+  costo_mensile    Float
   societaId        Int
-  societa          Societa @relation(fields: [societaId], references: [id])
+  societa          Societa  @relation(fields: [societaId], references: [id])
 }
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
